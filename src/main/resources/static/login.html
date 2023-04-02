@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <title>Login</title>
+</head>
+<body class="bg-dark">
+<div class="card mx-auto my-2 border border-dark"
+     style="max-height: 40%; max-width: 20%;background-color: #1a1b1f">
+    <form class="mx-auto my-1" action="/login" method="post">
+        <div class="card-body">
+            <label class="w-100 my-2">
+                <input name="username" class="bg-dark border border-dark rounded text-light h-100 w-100"
+                       style="resize: none;">
+            </label>
+            <label class="w-100 my-2">
+                <input type="password" name="password" class="bg-dark border border-dark rounded text-light h-100 w-100"
+                       style="resize: none;">
+            </label>
+            <label class="w-100 my-1 text-center">
+                <input type="submit" value="LOGIN" class="btn text-light bg-dark">
+            </label>
+        </div>
+    </form>
+</div>
+</body>
+</html>
