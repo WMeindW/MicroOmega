@@ -17,7 +17,7 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/login", produces = "text/html")
-    public String loginPost() {
+    public String loginPost(@RequestBody String requestBody) {
         return Database.read("login.html");
     }
 
@@ -29,9 +29,9 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/register", produces = "text/html")
-    public String registerPost(RequestBody requestBody) {
-        if (Register.register(requestBody.toString()))
-            return login();
+    public String registerPost(@RequestBody String requestBody) {
+        if (Register.register(requestBody))
+            login();
         return register();
     }
 }
