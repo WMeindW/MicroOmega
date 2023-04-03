@@ -1,6 +1,8 @@
 package cz.meind.microomega.User;
 
-public class User {
+import java.io.*;
+
+public class User implements Serializable {
     private UType type;
     private String userName;
     private String password;
