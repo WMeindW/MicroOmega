@@ -1,6 +1,7 @@
 package cz.meind.microomega.User;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class User implements Serializable {
     private UType type;
@@ -47,10 +48,6 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
-                "type=" + type +
-                ", userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+        return "User{" + "type=" + type + ", userName='" + userName + '\'' + ", password='" + password + '\'' + '}';
     }
 }

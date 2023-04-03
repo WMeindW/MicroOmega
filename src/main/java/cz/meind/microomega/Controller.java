@@ -31,7 +31,7 @@ public class Controller {
     @PostMapping(value = "/register", produces = "text/html")
     public String registerPost(@RequestBody String requestBody) {
         if (Register.register(requestBody))
-            login();
-        return register();
+            return login();
+        return register() + "<script>alert(\"Username already exists!\")</script>";
     }
 }

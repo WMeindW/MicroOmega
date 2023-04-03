@@ -10,9 +10,9 @@ public class Register {
     public static boolean register(String body) {
         User user = User.instance(UType.USER, body.split("&")[0].split("=")[1], body.split("&")[1].split("=")[1]);
         ArrayList<User> list = Database.deserializeAndRead();
+        System.out.println(list);
         for (User value : list)
-            if (value.equals(user)) return false;
-        Database.serializeAndWrite(user);
-        return true;
+            if (value.getUserName().equals(user.getUserName())) return false;
+        return Database.serializeAndWrite(user);
     }
 }
