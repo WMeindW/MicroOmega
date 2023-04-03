@@ -1,7 +1,5 @@
 package cz.meind.microomega.User;
 
-import java.util.Objects;
-
 public class User {
     private UType type;
     private String userName;
@@ -19,14 +17,6 @@ public class User {
         this.type = type;
         this.userName = userName;
         this.password = password;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return type == user.type && Objects.equals(userName, user.userName) && Objects.equals(password, user.password);
     }
 
     public UType getType() {
