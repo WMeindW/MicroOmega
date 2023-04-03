@@ -55,8 +55,10 @@ public class Database {
             }
         }
         try {
-            Scanner scanner = new Scanner(file);
+
             //not working
+            FileInputStream fis = new FileInputStream(file);
+            Scanner scanner = new Scanner(new String(fis.readAllBytes(), StandardCharsets.UTF_8));
             while (scanner.hasNext()) {
                 ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(scanner.nextLine().getBytes(StandardCharsets.UTF_8)));
                 User user = (User) stream.readObject();
@@ -66,6 +68,7 @@ public class Database {
             e.printStackTrace();
             return users;
         }
+        System.out.println(users);
         return users;
     }
 
