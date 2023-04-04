@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Register {
     public static boolean register(String body) {
-        User user = User.instance(UType.USER, body.split("&")[0].split("=")[1], body.split("&")[1].split("=")[1]);
+        User user = new User(UType.USER, body.split("&")[0].split("=")[1], body.split("&")[1].split("=")[1]);
         ArrayList<User> list = Database.deserializeAndRead();
         for (User value : list)
             if (value.getUserName().equals(user.getUserName())) return false;

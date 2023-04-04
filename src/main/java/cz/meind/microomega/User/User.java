@@ -7,16 +7,9 @@ public class User implements Serializable {
     private UType type;
     private String userName;
     private String password;
-    private static User instance;
 
-    public static User instance(UType type, String userName, String password) {
-        if (instance == null) {
-            instance = new User(type, userName, password);
-        }
-        return instance;
-    }
 
-    private User(UType type, String userName, String password) {
+    public User(UType type, String userName, String password) {
         this.type = type;
         this.userName = userName;
         this.password = password;
@@ -44,6 +37,14 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return type == user.type && Objects.equals(userName, user.userName) && Objects.equals(password, user.password);
     }
 
     @Override

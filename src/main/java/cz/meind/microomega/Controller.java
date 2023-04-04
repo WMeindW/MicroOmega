@@ -1,6 +1,7 @@
 package cz.meind.microomega;
 
 import cz.meind.microomega.Database.Database;
+import cz.meind.microomega.Service.Login;
 import cz.meind.microomega.Service.Register;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,9 @@ public class Controller {
     @ResponseBody
     @PostMapping(value = "/login", produces = "text/html")
     public String loginPost(@RequestBody String requestBody) {
-        return Database.read("login.html");
+        if (Login.login(requestBody))
+            return "<script>alert(\"Logged in!\")</script>";
+        return login() + "<script>alert(\"Wrong password!\")</script>";
     }
 
     @ResponseBody

@@ -33,8 +33,10 @@ public class Database {
             }
         }
         try {
-            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file, true));
-            stream.writeObject(user);
+            ArrayList<User> users = deserializeAndRead();
+            users.add(user);
+            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
+            stream.writeObject(users);
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -44,8 +46,8 @@ public class Database {
     }
 
     public static ArrayList<User> deserializeAndRead() {
-        ArrayList<User> users = new ArrayList<>();
         File file = new File("src/main/java/cz/meind/microomega/Database/Files/files.dat");
+        ArrayList<User> users = new ArrayList<>();
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -55,20 +57,13 @@ public class Database {
             }
         }
         try {
-
-            //not working
-            FileInputStream fis = new FileInputStream(file);
-            Scanner scanner = new Scanner(new String(fis.readAllBytes(), StandardCharsets.UTF_8));
-            while (scanner.hasNext()) {
-                ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(scanner.nextLine().getBytes(StandardCharsets.UTF_8)));
-                User user = (User) stream.readObject();
-                users.add(user);
-            }
+            ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
+            users = (ArrayList<User>) stream.readObject();
+            stream.close();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return users;
         }
-        System.out.println(users);
         return users;
     }
 
