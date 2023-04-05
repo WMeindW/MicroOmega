@@ -61,7 +61,6 @@ public class Database {
             users = (ArrayList<User>) stream.readObject();
             stream.close();
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
             return users;
         }
         return users;
