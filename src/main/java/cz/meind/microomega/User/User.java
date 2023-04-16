@@ -2,18 +2,23 @@ package cz.meind.microomega.User;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Random;
 
 public class User implements Serializable {
+    private Random random = new Random();
     private UType type;
     private String userName;
     private String password;
     private byte[] profilePicture;
     private String bioProfilePicture;
 
+    private String id;
+
     public User(UType type, String userName, String password) {
         this.type = type;
         this.userName = userName;
         this.password = password;
+        id = "USRID-" + ((double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
     }
 
     public byte[] getProfilePicture() {
