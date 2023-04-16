@@ -7,8 +7,6 @@ public class User implements Serializable {
     private UType type;
     private String userName;
     private String password;
-
-
     public User(UType type, String userName, String password) {
         this.type = type;
         this.userName = userName;

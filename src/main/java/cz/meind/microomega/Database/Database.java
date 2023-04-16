@@ -3,10 +3,8 @@ package cz.meind.microomega.Database;
 import cz.meind.microomega.User.User;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 public class Database {
     public static String read(String path) {
@@ -24,6 +22,7 @@ public class Database {
 
     public static boolean serializeAndWrite(User user) {
         File file = new File("src/main/java/cz/meind/microomega/Database/Files/files.dat");
+        FileWriter writer;
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -33,14 +32,23 @@ public class Database {
             }
         }
         try {
-            ArrayList<User> users = deserializeAndRead();
-            users.add(user);
-            ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(file));
-            stream.writeObject(users);
+            writer = new FileWriter(file, StandardCharsets.UTF_8, true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream stream = new ObjectOutputStream(os);
+            stream.writeObject(user);
             stream.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException(e);
+        }
+        try {
+            writer.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return true;
     }
@@ -56,15 +64,87 @@ public class Database {
                 return users;
             }
         }
+        Scanner scanner;
         try {
-            ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
-            users = (ArrayList<User>) stream.readObject();
-            stream.close();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            return users;
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        while (scanner.hasNext()) {
+            InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(scanner.next()));
+            try {
+                ObjectInputStream stream = new ObjectInputStream(in);
+                users.add((User) stream.readObject());
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
         return users;
     }
 
+    public static String generate(User user) {
+        HashMap<String, String> map = readIds();
+        Random random = new Random();
+        while (true) {
+            String id = "SSNID-" + ((double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
+            if (!map.containsValue(id)) {
+                map.remove(user.getUserName());
+                map.put(user.getUserName(), id);
+                if (writeIds(map)) {
+                    return id;
+                }
+            }
+        }
+    }
+
+    public static HashMap<String, String> readIds() {
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/idLog.dat");
+        HashMap<String, String> idLogs = new HashMap<>();
+        Scanner scanner;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return idLogs;
+            }
+        }
+        try {
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            idLogs.put(line.split(",")[0].replaceAll(",", ""), line.split(",")[1].replaceAll(",", ""));
+        }
+        return idLogs;
+    }
+
+    public static boolean writeIds(HashMap<String, String> idLogs) {
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/idLog.dat");
+        FileWriter writer;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        try {
+            writer = new FileWriter(file, true);
+        } catch (IOException e) {
+            return false;
+        }
+        for (int i = 0; i < idLogs.size(); i++) {
+            try {
+                writer.append(String.valueOf(idLogs.keySet().toArray()[i])).append(",").append(String.valueOf(idLogs.values().toArray()[i]));
+                writer.close();
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
