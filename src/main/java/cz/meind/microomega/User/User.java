@@ -25,6 +25,10 @@ public class User implements Serializable {
         return profilePicture;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
     }
