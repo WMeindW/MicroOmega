@@ -7,10 +7,29 @@ public class User implements Serializable {
     private UType type;
     private String userName;
     private String password;
+    private byte[] profilePicture;
+    private String bioProfilePicture;
+
     public User(UType type, String userName, String password) {
         this.type = type;
         this.userName = userName;
         this.password = password;
+    }
+
+    public byte[] getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(byte[] profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public String getBioProfilePicture() {
+        return bioProfilePicture;
+    }
+
+    public void setBioProfilePicture(String bioProfilePicture) {
+        this.bioProfilePicture = bioProfilePicture;
     }
 
     public UType getType() {
