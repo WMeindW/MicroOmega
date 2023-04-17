@@ -1,6 +1,7 @@
 package cz.meind.microomega.User;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
@@ -10,15 +11,20 @@ public class User implements Serializable {
     private String userName;
     private String password;
     private byte[] profilePicture;
-    private String bioProfilePicture;
-
+    private String bioProfile;
     private String id;
+    private ArrayList<User> friends;
 
     public User(UType type, String userName, String password) {
         this.type = type;
         this.userName = userName;
         this.password = password;
-        id = "USRID-" + ((double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
+        id = "USRID-" + (random.nextInt(99) + (double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
+        friends = new ArrayList<>();
+    }
+
+    public ArrayList<User> getFriends() {
+        return friends;
     }
 
     public byte[] getProfilePicture() {
@@ -33,12 +39,12 @@ public class User implements Serializable {
         this.profilePicture = profilePicture;
     }
 
-    public String getBioProfilePicture() {
-        return bioProfilePicture;
+    public String getBioProfile() {
+        return bioProfile;
     }
 
-    public void setBioProfilePicture(String bioProfilePicture) {
-        this.bioProfilePicture = bioProfilePicture;
+    public void setBioProfile(String bioProfile) {
+        this.bioProfile = bioProfile;
     }
 
     public UType getType() {

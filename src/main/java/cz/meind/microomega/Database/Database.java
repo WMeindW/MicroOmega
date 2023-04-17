@@ -147,4 +147,24 @@ public class Database {
         }
         return true;
     }
+
+    public static User userId(String id) {
+        for (User user : deserializeAndRead()) {
+            if (user.getId().equals(id)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public static User userName(String name) {
+        for (User user : deserializeAndRead()) {
+            if (user.getUserName().equals(name)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+
 }
