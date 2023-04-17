@@ -54,8 +54,13 @@ public class Service {
     public static String friends(String data) {
         User user = getUser(data);
         String card = Database.read("components/user-card.html");
+        StringBuilder friendCards = new StringBuilder();
         for (User friend : user.getFriends()) {
-
+            friendCards.append(Objects.requireNonNull(card).replace("@0", friend.getUserName())
+                    .replace("@1", "id=" + friend.getId())
+                    .replace("@2", friend.getUserName())
+                    .replace("@3", friend.getLastActive().toString()));
         }
+        return friendCards.toString();
     }
 }

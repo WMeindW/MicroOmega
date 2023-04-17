@@ -1,6 +1,7 @@
 package cz.meind.microomega.User;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
@@ -14,6 +15,7 @@ public class User implements Serializable {
     private String bioProfile;
     private String id;
     private ArrayList<User> friends;
+    private LocalDateTime lastActive;
 
     public User(UType type, String userName, String password) {
         this.type = type;
@@ -21,6 +23,15 @@ public class User implements Serializable {
         this.password = password;
         id = "USRID-" + (random.nextInt(99) + (double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
         friends = new ArrayList<>();
+        lastActive = LocalDateTime.now();
+    }
+
+    public LocalDateTime getLastActive() {
+        return lastActive;
+    }
+
+    public void setActive() {
+        lastActive = LocalDateTime.now();
     }
 
     public ArrayList<User> getFriends() {
