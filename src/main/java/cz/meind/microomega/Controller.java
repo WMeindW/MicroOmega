@@ -20,7 +20,8 @@ public class Controller {
     @ResponseBody
     @GetMapping(value = "/", produces = "text/html")
     public ResponseEntity<String> index(HttpServletResponse response, HttpServletRequest req) throws IOException {
-        if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()[0].getValue())) return new ResponseEntity<>("Logged", HttpStatus.OK);
+        if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()[0].getValue()))
+            return new ResponseEntity<>("Logged", HttpStatus.OK);
         response.sendRedirect("/login");
         return new ResponseEntity<>(HttpStatus.PERMANENT_REDIRECT);
     }
@@ -81,7 +82,7 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/sendHook", produces = "text/html")
-    public ResponseEntity<String> sendHook(@RequestBody String data, HttpServletRequest req){
+    public ResponseEntity<String> sendHook(@RequestBody String data, HttpServletRequest req) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()[0].getValue())) {
@@ -92,7 +93,7 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/info", produces = "text/html")
-    public ResponseEntity<String> info(@RequestBody String data, HttpServletRequest req){
+    public ResponseEntity<String> info(@RequestBody String data, HttpServletRequest req) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()[0].getValue())) {
@@ -103,11 +104,34 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/friends", produces = "text/html")
-    public ResponseEntity<String> friends(@RequestBody String data, HttpServletRequest req){
+    public ResponseEntity<String> friends(@RequestBody String data, HttpServletRequest req) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()[0].getValue())) {
             return new ResponseEntity<>(Service.friends(data), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/query", produces = "text/html")
+    public ResponseEntity<String> query(@RequestBody String data, HttpServletRequest req) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()[0].getValue())) {
+            return new ResponseEntity<>(Service.query(data), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/add", produces = "text/html")
+    public ResponseEntity<Boolean> add(@RequestBody String data, HttpServletRequest req) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()[0].getValue())) {
+
+            return new ResponseEntity<>(Service.add(data), headers, HttpStatus.OK);
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
     }
