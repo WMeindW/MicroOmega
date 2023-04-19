@@ -3,6 +3,7 @@ package cz.meind.microomega.Service;
 import cz.meind.microomega.Database.Database;
 import cz.meind.microomega.User.UType;
 import cz.meind.microomega.User.User;
+import jakarta.servlet.http.Cookie;
 
 import java.util.ArrayList;
 
@@ -16,9 +17,12 @@ public class Login {
         return null;
     }
 
-    public static boolean checkCookie(String cookie) {
-        for (String value : Database.readIds().values())
-            if (value.equals(cookie)) return true;
+    public static boolean checkCookie(Cookie[] cookies) {
+        for (int i = 0; i < cookies.length; i++) {
+            for (String id : Database.readIds().values()) {
+                if (cookies[i].getValue().equals(id)) return true;
+            }
+        }
         return false;
     }
 }

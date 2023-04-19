@@ -85,16 +85,15 @@ public class Database {
     public static String generate(User user) {
         HashMap<String, String> map = readIds();
         Random random = new Random();
-        while (true) {
-            String id = "SSNID-" + ((double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
-            if (!map.containsValue(id)) {
-                map.remove(user.getUserName());
-                map.put(user.getUserName(), id);
-                if (writeIds(map)) {
-                    return id;
-                }
-            }
+        map.remove(user.getUserName());
+        String id = "SSNID-" + ((double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
+        while (map.containsValue(id)) {
+            id = "SSNID-" + ((double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
         }
+        map.put(user.getUserName(), id);
+        System.out.println(map);
+        if (writeIds(map)) return id;
+        return null;
     }
 
     public static HashMap<String, String> readIds() {
@@ -133,17 +132,21 @@ public class Database {
             }
         }
         try {
-            writer = new FileWriter(file, true);
+            writer = new FileWriter(file);
         } catch (IOException e) {
             return false;
         }
         for (int i = 0; i < idLogs.size(); i++) {
             try {
-                writer.append(String.valueOf(idLogs.keySet().toArray()[i])).append(",").append(String.valueOf(idLogs.values().toArray()[i]));
-                writer.close();
+                writer.append(String.valueOf(idLogs.keySet().toArray()[i])).append(",").append(String.valueOf(idLogs.values().toArray()[i])).append("\n");
             } catch (IOException e) {
                 return false;
             }
+        }
+        try {
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return true;
     }
