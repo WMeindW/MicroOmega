@@ -1,10 +1,13 @@
 package cz.meind.microomega.Service;
 
 import cz.meind.microomega.Database.Database;
+import cz.meind.microomega.User.Hook;
+import cz.meind.microomega.User.HookExchange;
 import cz.meind.microomega.User.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Objects;
 
 public class Service {
@@ -24,6 +27,7 @@ public class Service {
         User user = getUser(data);
         String form = Database.read("components/form-card.html");
         form = Objects.requireNonNull(form).replace("@0", "id=" + Objects.requireNonNull(user).getId());
+        form = Objects.requireNonNull(form).replace("@1", data.split("username=")[1]);
         return form;
     }
 
@@ -54,7 +58,7 @@ public class Service {
 
     public static String query(String data) {
         String card = Database.read("components/query-user-card.html");
-        String query = data.split("query=")[1];
+        String query = data.split("query=")[1].split(",")[0];
         ArrayList<User> users = new ArrayList<>();
         if (Service.getUser(data) != null) {
             for (User candidate : Database.deserializeAndRead()) {
@@ -72,7 +76,7 @@ public class Service {
 
     public static boolean add(String data) {
         User user = getUser(data);
-        User addUser = Database.userId(data.split("addId=")[1]);
+        User addUser = Database.userId(data.split("addId=")[1].split(",")[0]);
         if (addUser != null && user != null) {
             addUser.getFriends().add(user);
             user.getFriends().add(addUser);
@@ -81,5 +85,22 @@ public class Service {
         return false;
     }
 
+    public static boolean send(String data) {
+        User user = getUser(data);
+        Hook hook = new Hook(data.split("message=")[1]);
+        String username = data.split("username=")[1].split(",")[0];
+        LinkedList<HookExchange> list = Database.deserializeAndReadHooks();
+        for (HookExchange exchange : list) {
+            if (exchange.getHookTwo().equals(user) && exchange.getHookOne().getUserName().equals(username) || exchange.getHookTwo().getUserName().equals(username) && exchange.getHookOne().equals(user)) {
+                exchange.getHooks().add(hook);
+                return Database.serializeAndWriteHooks(list);
+            }
+        }
+        return false;
+    }
 
+    public static String messages(String data) {
+        User user = getUser(data);
+        User user1 = Database.userName(data.split("username=")[1].split(",")[0]);
+    }
 }

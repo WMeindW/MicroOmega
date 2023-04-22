@@ -1,4 +1,5 @@
 <form method="post" action="/send?@0">
-  <input type="text" className="input-text text-light"/>
-  <input type="submit" value="Send" className="input-button text-light"/>
+    <input type="hidden" name="username" value="@1"/>
+    <input name="message" type="text" className="input-text text-light"/>
+    <input type="submit" value="Send" className="input-button text-light"/>
 </form>

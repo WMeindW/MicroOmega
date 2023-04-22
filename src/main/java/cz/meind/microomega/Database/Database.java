@@ -1,5 +1,6 @@
 package cz.meind.microomega.Database;
 
+import cz.meind.microomega.User.HookExchange;
 import cz.meind.microomega.User.User;
 
 import java.io.*;
@@ -168,4 +169,74 @@ public class Database {
         }
         return null;
     }
+
+    public static LinkedList<HookExchange> deserializeAndReadHooks() {
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/hooks.dat");
+        LinkedList<HookExchange> hooks = new LinkedList<>();
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return hooks;
+            }
+        }
+        Scanner scanner;
+        try {
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        while (scanner.hasNext()) {
+            InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(scanner.next()));
+            try {
+                ObjectInputStream stream = new ObjectInputStream(in);
+                hooks.add((HookExchange) stream.readObject());
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return hooks;
+    }
+
+    public static boolean serializeAndWriteHooks(LinkedList<HookExchange> list) {
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/hooks.dat");
+        FileWriter writer;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        try {
+            writer = new FileWriter(file, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (HookExchange hook : list) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try {
+                ObjectOutputStream stream = new ObjectOutputStream(os);
+                stream.writeObject(hook);
+                stream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                writer.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
 }

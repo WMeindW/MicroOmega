@@ -136,4 +136,25 @@ public class Controller {
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
     }
+
+    @ResponseBody
+    @PostMapping(value = "/send", produces = "text/html")
+    public ResponseEntity<Boolean> send(@RequestBody String data, HttpServletRequest req) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
+            return new ResponseEntity<>(Service.send(data), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<String> messages(@RequestBody String data, HttpServletRequest req) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
+            return new ResponseEntity<>(Service.messages(data), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
 }
