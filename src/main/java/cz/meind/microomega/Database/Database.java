@@ -1,6 +1,6 @@
-package cz.meind.microomega.Database;
+package cz.meind.microomega.Database;/**/
 
-import cz.meind.microomega.User.HookExchange;
+import cz.meind.microomega.User.Exchange;
 import cz.meind.microomega.User.User;
 
 import java.io.*;
@@ -170,37 +170,41 @@ public class Database {
         return null;
     }
 
-    public static LinkedList<HookExchange> deserializeAndReadHooks() {
-        File file = new File("src/main/java/cz/meind/microomega/Database/Files/hooks.dat");
-        LinkedList<HookExchange> hooks = new LinkedList<>();
+    public static boolean serializeAndWriteExchange(Exchange exchange) {
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/exchanges.dat");
+        FileWriter writer;
         if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
-                return hooks;
+                return false;
             }
         }
-        Scanner scanner;
         try {
-            scanner = new Scanner(file);
-        } catch (FileNotFoundException e) {
+            writer = new FileWriter(file, StandardCharsets.UTF_8, true);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        while (scanner.hasNext()) {
-            InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(scanner.next()));
-            try {
-                ObjectInputStream stream = new ObjectInputStream(in);
-                hooks.add((HookExchange) stream.readObject());
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream stream = new ObjectOutputStream(os);
+            stream.writeObject(exchange);
+            stream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return hooks;
+        try {
+            writer.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
     }
 
-    public static boolean serializeAndWriteHooks(LinkedList<HookExchange> list) {
-        File file = new File("src/main/java/cz/meind/microomega/Database/Files/hooks.dat");
+    public static boolean serializeAndWriteExchanges(ArrayList<Exchange> exchangeList) {
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/exchanges.dat");
         FileWriter writer;
         if (!file.exists()) {
             try {
@@ -215,18 +219,17 @@ public class Database {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        for (HookExchange hook : list) {
+        for (Exchange exchange : exchangeList) {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try {
                 ObjectOutputStream stream = new ObjectOutputStream(os);
-                stream.writeObject(hook);
+                stream.writeObject(exchange);
                 stream.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             try {
                 writer.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
-
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -239,4 +242,45 @@ public class Database {
         return true;
     }
 
+    public static ArrayList<Exchange> deserializeAndReadExchange() {
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/exchanges.dat");
+        ArrayList<Exchange> exchanges = new ArrayList<>();
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return exchanges;
+            }
+        }
+        Scanner scanner;
+        try {
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        while (scanner.hasNext()) {
+            InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(scanner.next()));
+            try {
+                ObjectInputStream stream = new ObjectInputStream(in);
+                exchanges.add((Exchange) stream.readObject());
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return exchanges;
+    }
+
+    public static boolean editExchange(Exchange exchange) {
+        ArrayList<Exchange> list = deserializeAndReadExchange();
+        for (Exchange in : list) {
+            if (in.getOne().getUserName().equals(exchange.getOne().getUserName()) && in.getTwo().getUserName().equals(exchange.getTwo().getUserName())
+                    || in.getTwo().getUserName().equals(exchange.getOne().getUserName()) && in.getOne().getUserName().equals(exchange.getTwo().getUserName())) {
+                list.remove(in);
+                list.add(exchange);
+                return serializeAndWriteExchanges(list);
+            }
+        }
+        return false;
+    }
 }

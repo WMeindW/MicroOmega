@@ -1,13 +1,12 @@
 package cz.meind.microomega.Service;
 
 import cz.meind.microomega.Database.Database;
+import cz.meind.microomega.User.Exchange;
 import cz.meind.microomega.User.Hook;
-import cz.meind.microomega.User.HookExchange;
 import cz.meind.microomega.User.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Objects;
 
 public class Service {
@@ -87,20 +86,42 @@ public class Service {
 
     public static boolean send(String data) {
         User user = getUser(data);
-        Hook hook = new Hook(data.split("message=")[1]);
+        Hook hook = new Hook(data.split("message=")[1], user);
         String username = data.split("username=")[1].split(",")[0];
-        LinkedList<HookExchange> list = Database.deserializeAndReadHooks();
-        for (HookExchange exchange : list) {
-            if (exchange.getHookTwo().equals(user) && exchange.getHookOne().getUserName().equals(username) || exchange.getHookTwo().getUserName().equals(username) && exchange.getHookOne().equals(user)) {
-                exchange.getHooks().add(hook);
-                return Database.serializeAndWriteHooks(list);
+        ArrayList<Exchange> list = Database.deserializeAndReadExchange();
+        for (Exchange exchange : list) {
+            if (exchange.getTwo().equals(user) && exchange.getOne().getUserName().equals(username) || exchange.getTwo().getUserName().equals(username) && exchange.getOne().equals(user)) {
+                exchange.getMessages().add(hook);
+                return Database.editExchange(exchange);
             }
         }
+        Exchange exchange = new Exchange(user, Database.userName(username));
+        exchange.getMessages().add(hook);
+        list.add(exchange);
         return false;
     }
 
     public static String messages(String data) {
-        User user = getUser(data);
-        User user1 = Database.userName(data.split("username=")[1].split(",")[0]);
+        ArrayList<Exchange> list = Database.deserializeAndReadExchange();
+        User sent = getUser(data);
+        User received = Database.userName(data.split("username=")[1].split(",")[0]);
+        Exchange in = null;
+        for (Exchange exchange : list) {
+            if (exchange.getTwo().equals(sent) && exchange.getOne().equals(sent) || exchange.getTwo().equals(received) && exchange.getOne().equals(received)) {
+                in = exchange;
+            }
+        }
+        String sentCard = Database.read("components/message-sent.html");
+        String receivedCard = Database.read("components/message-received.html");
+        StringBuilder html = new StringBuilder();
+        if (in != null) {
+            for (Hook message : in.getMessages()) {
+                if (message.getSender().equals(sent))
+                    html.append(Objects.requireNonNull(sentCard).replace("@0", message.getText()).replace("@1", message.getTime().toString()));
+                else if (message.getSender().equals(received))
+                    html.append(Objects.requireNonNull(receivedCard).replace("@0", message.getText()).replace("@1", message.getTime().toString()));
+            }
+        }
+        return html.toString();
     }
 }
