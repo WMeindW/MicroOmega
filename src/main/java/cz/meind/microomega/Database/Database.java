@@ -92,7 +92,6 @@ public class Database {
             id = "SSNID-" + ((double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
         }
         map.put(user.getUserName(), id);
-        System.out.println(map);
         if (writeIds(map)) return id;
         return null;
     }
