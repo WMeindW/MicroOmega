@@ -124,4 +124,8 @@ public class Service {
         }
         return html.toString();
     }
+
+    public static String user(String data) {
+
+    }
 }

@@ -22,7 +22,29 @@ public class Controller {
     public ResponseEntity<String> index(HttpServletResponse response, HttpServletRequest req) throws IOException {
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()))
-                return new ResponseEntity<>("Logged", HttpStatus.OK);
+                return new ResponseEntity<>(Database.read("index.html"), HttpStatus.OK);
+        }
+        response.sendRedirect("/login");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/index.js", produces = "application/javascript")
+    public ResponseEntity<String> javascript(HttpServletResponse response, HttpServletRequest req) throws IOException {
+        if (req.getCookies() != null) {
+            if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()))
+                return new ResponseEntity<>(Database.read("index.js"), HttpStatus.OK);
+        }
+        response.sendRedirect("/login");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/index.css", produces = "text/css")
+    public ResponseEntity<String> css(HttpServletResponse response, HttpServletRequest req) throws IOException {
+        if (req.getCookies() != null) {
+            if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies()))
+                return new ResponseEntity<>(Database.read("index.css"), HttpStatus.OK);
         }
         response.sendRedirect("/login");
         return new ResponseEntity<>(HttpStatus.OK);
@@ -177,6 +199,19 @@ public class Controller {
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
                 return new ResponseEntity<>(Service.messages(data), headers, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/user", produces = "text/html")
+    public ResponseEntity<String> user(@RequestBody String data, HttpServletRequest req) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies() != null) {
+            if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
+                return new ResponseEntity<>(Service.user(data), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
