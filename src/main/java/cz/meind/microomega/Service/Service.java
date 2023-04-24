@@ -14,9 +14,11 @@ public class Service {
         String id = data.substring(3);
         HashMap<String, String> map = Database.readIds();
         User user = null;
-        for (String ssnid : map.values()) {
-            if (ssnid.equals(id)) {
-                user = Database.userName(map.get(ssnid));
+        ArrayList<String> keys = new ArrayList<>(map.keySet());
+        ArrayList<String> values = new ArrayList<>(map.values());
+        for (int i = 0; i < values.size(); i++) {
+            if (values.get(i).equals(id)) {
+                user = Database.userName(keys.get(i));
             }
         }
         return user;
@@ -126,6 +128,10 @@ public class Service {
     }
 
     public static String user(String data) {
-
+        User user = getUser(data);
+        String card = Database.read("components/profile-card.html");
+        String html = "";
+        html = Objects.requireNonNull(card).replace("@0", user.getId()).replace("@1", user.getUserName());
+        return html;
     }
 }
