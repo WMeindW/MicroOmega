@@ -17,63 +17,49 @@ public class Service {
         String[] ids = map.values().toArray(new String[0]);
         User user = null;
         for (int i = 0; i < names.length; i++) {
-            if (ids[i].equals(ssnId))
-                user = Database.userName(names[i]);
+            if (ids[i].equals(ssnId)) user = Database.userName(names[i]);
         }
         return user;
     }
 
     public static String sendHook(String data) {
         User user = getUser(data);
-        String form = Database.read("components/form-card.html");
-        form = Objects.requireNonNull(form).replace("@0", "id=" + Objects.requireNonNull(user).getId());
-        form = Objects.requireNonNull(form).replace("@1", data.split("username=")[1]);
-        return form;
+        return "id=" + Objects.requireNonNull(user).getId() + "&" + data.split("username=")[1];
     }
 
     public static String info(String data) {
         User user = getUser(data);
-        String form = Database.read("components/info-form-card.html");
-        form = Objects.requireNonNull(form).replace("@0", "id=" + Objects.requireNonNull(user).getId());
-        form = Objects.requireNonNull(form).replace("@1", "id=" + Objects.requireNonNull(user).getId());
-        form = Objects.requireNonNull(form).replace("@2", "id=" + Objects.requireNonNull(user).getId());
-        String section = Database.read("components/info-section-card.html");
-        String sections = "";
-        sections += Objects.requireNonNull(section).replace("@0", "Username").replace("@1", "username").replace("@2", user.getUserName());
-        sections += section.replace("@0", "Password").replace("@1", "password").replace("@2", user.getPassword());
-        sections += section.replace("@0", "Bio").replace("@1", "bio").replace("@2", user.getBioProfile());
-        form = Objects.requireNonNull(form).replace("@3", sections);
-        return form;
+        return "id=" + user.getId() + "&" + user.getUserName() + "&" + user.getPassword() + "&" + user.getBioProfile();
     }
 
     public static String friends(String data) {
         User user = getUser(data);
-        String card = Database.read("components/user-card.html");
-        StringBuilder friendCards = new StringBuilder();
+        StringBuilder friends = new StringBuilder();
         for (User friend : user.getFriends()) {
-            friendCards.append(Objects.requireNonNull(card).replace("@0", friend.getUserName()).replace("@1", "id=" + friend.getId()).replace("@2", friend.getUserName()).replace("@3", friend.getLastActive().toString()));
+            friends.append(friend.getUserName()).append("&").append("id=").append(friend.getId()).append(friend.getLastActive().toString()).append("#");
         }
-        return friendCards.toString();
+        return friends.toString();
     }
 
     public static String query(String data) {
-        String card = Database.read("components/query-user-card.html");
         if (data.split("query=").length > 1) {
             String query = data.split("query=")[1].split(",")[0];
             ArrayList<User> users = new ArrayList<>();
             User user = getUser(data);
+            StringBuilder html = new StringBuilder();
             if (user != null) {
                 for (User candidate : Database.deserializeAndRead()) {
-                    if (candidate.getUserName().toLowerCase().contains(query.toLowerCase()) || candidate.getBioProfile().toLowerCase().contains(query.toLowerCase())) {
-                        users.add(candidate);
+                    if (!user.getFriends().contains(candidate) && !user.equals(candidate)) {
+                        if (candidate.getUserName().toLowerCase().contains(query.toLowerCase()) || candidate.getBioProfile().toLowerCase().contains(query.toLowerCase())) {
+                            users.add(candidate);
+                        }
                     }
                 }
+                for (User match : users) {
+                    html.append("id=").append(match.getId()).append("&").append(match.getUserName()).append("#");
+                }
+                return html.toString();
             }
-            StringBuilder html = new StringBuilder();
-            for (User u : users) {
-                html.append(Objects.requireNonNull(card).replace("@0", "id=" + u.getId()).replace("@1", u.getUserName()).replace("@2", "id=" + u.getId()));
-            }
-            return html.toString();
         }
         return "";
     }
@@ -116,15 +102,13 @@ public class Service {
                 in = exchange;
             }
         }
-        String sentCard = Database.read("components/message-sent.html");
-        String receivedCard = Database.read("components/message-received.html");
         StringBuilder html = new StringBuilder();
         if (in != null) {
             for (Hook message : in.getMessages()) {
                 if (message.getSender().equals(sent))
-                    html.append(Objects.requireNonNull(sentCard).replace("@0", message.getText()).replace("@1", message.getTime().toString()));
+                    html.append(1).append(message.getText()).append(message.getTime().toString()).append("#");
                 else if (message.getSender().equals(received))
-                    html.append(Objects.requireNonNull(receivedCard).replace("@0", message.getText()).replace("@1", message.getTime().toString()));
+                    html.append(0).append(message.getText()).append(message.getTime().toString()).append("#");
             }
         }
         return html.toString();
@@ -132,6 +116,6 @@ public class Service {
 
     public static String user(String data) {
         User user = getUser(data);
-        return user.getId() + "&" + user.getUserName();
+        return "id=" + user.getId() + "&" + user.getUserName();
     }
 }
