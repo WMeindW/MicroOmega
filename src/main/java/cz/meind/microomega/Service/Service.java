@@ -11,15 +11,14 @@ import java.util.Objects;
 
 public class Service {
     private static User getUser(String data) {
-        String id = data.substring(3);
+        String ssnId = data.split("id=")[1].split("&")[0];
         HashMap<String, String> map = Database.readIds();
+        String[] names = map.keySet().toArray(new String[0]);
+        String[] ids = map.values().toArray(new String[0]);
         User user = null;
-        ArrayList<String> keys = new ArrayList<>(map.keySet());
-        ArrayList<String> values = new ArrayList<>(map.values());
-        for (int i = 0; i < values.size(); i++) {
-            if (values.get(i).equals(id)) {
-                user = Database.userName(keys.get(i));
-            }
+        for (int i = 0; i < names.length; i++) {
+            if (ids[i].equals(ssnId))
+                user = Database.userName(names[i]);
         }
         return user;
     }
@@ -59,20 +58,24 @@ public class Service {
 
     public static String query(String data) {
         String card = Database.read("components/query-user-card.html");
-        String query = data.split("query=")[1].split(",")[0];
-        ArrayList<User> users = new ArrayList<>();
-        if (Service.getUser(data) != null) {
-            for (User candidate : Database.deserializeAndRead()) {
-                if (candidate.getUserName().toLowerCase().contains(query.toLowerCase()) || candidate.getBioProfile().toLowerCase().contains(query.toLowerCase())) {
-                    users.add(candidate);
+        if (data.split("query=").length > 1) {
+            String query = data.split("query=")[1].split(",")[0];
+            ArrayList<User> users = new ArrayList<>();
+            User user = getUser(data);
+            if (user != null) {
+                for (User candidate : Database.deserializeAndRead()) {
+                    if (candidate.getUserName().toLowerCase().contains(query.toLowerCase()) || candidate.getBioProfile().toLowerCase().contains(query.toLowerCase())) {
+                        users.add(candidate);
+                    }
                 }
             }
+            StringBuilder html = new StringBuilder();
+            for (User u : users) {
+                html.append(Objects.requireNonNull(card).replace("@0", "id=" + u.getId()).replace("@1", u.getUserName()).replace("@2", "id=" + u.getId()));
+            }
+            return html.toString();
         }
-        StringBuilder html = new StringBuilder();
-        for (User user : users) {
-            html.append(Objects.requireNonNull(card).replace("@0", "id=" + user.getId()).replace("@1", user.getUserName()).replace("@2", "id=" + user.getId()));
-        }
-        return html.toString();
+        return "";
     }
 
     public static boolean add(String data) {
@@ -129,9 +132,6 @@ public class Service {
 
     public static String user(String data) {
         User user = getUser(data);
-        String card = Database.read("components/profile-card.html");
-        String html = "";
-        html = Objects.requireNonNull(card).replace("@0", user.getId()).replace("@1", user.getUserName());
-        return html;
+        return user.getId() + "&" + user.getUserName();
     }
 }

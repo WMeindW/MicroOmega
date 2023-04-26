@@ -25,6 +25,7 @@ public class User implements Serializable {
         id = "USRID-" + (random.nextInt(99) + (double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
         friends = new ArrayList<>();
         lastActive = LocalDateTime.now();
+        bioProfile = "";
     }
 
     public LocalDateTime getLastActive() {
