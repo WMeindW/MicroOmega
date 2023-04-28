@@ -1,7 +1,11 @@
 package cz.meind.microomega.User;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -15,8 +19,8 @@ public class User implements Serializable {
     private byte[] profilePicture;
     private String bioProfile;
     private String id;
-    private ArrayList<User> friends;
-    private LocalDateTime lastActive;
+    private final ArrayList<User> friends;
+    private LocalTime lastActive;
 
     public User(UType type, String userName, String password) {
         this.type = type;
@@ -24,16 +28,21 @@ public class User implements Serializable {
         this.password = password;
         id = "USRID-" + (random.nextInt(99) + (double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
         friends = new ArrayList<>();
-        lastActive = LocalDateTime.now();
-        bioProfile = "";
+        lastActive = LocalTime.now();
+        bioProfile = "...";
+        try {
+            profilePicture = Files.readAllBytes(new File("src/main/resources/static/profile.png").toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public LocalDateTime getLastActive() {
+    public LocalTime getLastActive() {
         return lastActive;
     }
 
     public void setActive() {
-        lastActive = LocalDateTime.now();
+        lastActive = LocalTime.now();
     }
 
     public ArrayList<User> getFriends() {
@@ -90,10 +99,5 @@ public class User implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return type == user.type && Objects.equals(userName, user.userName) && Objects.equals(password, user.password);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" + "type=" + type + ", userName='" + userName + '\'' + ", password='" + password + '\'' + '}';
     }
 }

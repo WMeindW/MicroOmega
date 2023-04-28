@@ -167,7 +167,7 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/add", produces = "text/html")
-    public ResponseEntity<Boolean> add(@RequestBody String data, HttpServletRequest req) {
+    public ResponseEntity<String> add(@RequestBody String data, HttpServletRequest req) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
@@ -212,6 +212,37 @@ public class Controller {
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
                 return new ResponseEntity<>(Service.user(data), headers, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/profile", produces = "text/html")
+    public ResponseEntity<byte[]> profile(@RequestParam String id, HttpServletRequest req) {
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies() != null) {
+            if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
+                return new ResponseEntity<>(Service.profile(id), headers, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/logout", produces = "text/html")
+    public ResponseEntity<String> logout(@RequestParam String id, HttpServletRequest req, HttpServletResponse response) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies() != null) {
+            if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
+                if (Service.logout(id)) {
+                    response.sendRedirect("/login");
+                    return new ResponseEntity<>(headers, HttpStatus.OK);
+                }
+
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);

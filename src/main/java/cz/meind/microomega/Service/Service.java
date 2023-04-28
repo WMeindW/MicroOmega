@@ -36,7 +36,7 @@ public class Service {
         User user = getUser(data);
         StringBuilder friends = new StringBuilder();
         for (User friend : user.getFriends()) {
-            friends.append(friend.getUserName()).append("&").append("id=").append(friend.getId()).append(friend.getLastActive().toString()).append("#");
+            friends.append(friend.getUserName()).append("&").append("id=").append(friend.getId()).append("&").append(friend.getLastActive().getHour()).append(":").append(friend.getLastActive().getMinute()).append("#");
         }
         return friends.toString();
     }
@@ -64,15 +64,17 @@ public class Service {
         return "";
     }
 
-    public static boolean add(String data) {
+    public static String add(String data) {
         User user = getUser(data);
-        User addUser = Database.userId(data.split("addId=")[1].split(",")[0]);
-        if (addUser != null && user != null) {
-            addUser.getFriends().add(user);
-            user.getFriends().add(addUser);
-            return true;
+        User candidate = getUser(data.split("addId=")[0]);
+        if (candidate != null) {
+            user.getFriends().add(candidate);
+            candidate.getFriends().add(user);
+            Database.editUser(user);
+            Database.editUser(candidate);
+            return "success";
         }
-        return false;
+        return "failed";
     }
 
     public static boolean send(String data) {
@@ -118,4 +120,24 @@ public class Service {
         User user = getUser(data);
         return "id=" + user.getId() + "&" + user.getUserName();
     }
+
+    public static byte[] profile(String data) {
+        User user = Database.userId(data);
+        if (user != null) {
+            return user.getProfilePicture();
+        }
+        return new byte[0];
+    }
+
+    public static boolean logout(String data) {
+        User user = Database.userId(data);
+        HashMap<String, String> map = Database.readIds();
+        if (user != null) {
+            map.remove(user.getUserName());
+            Database.writeIds(map);
+            return true;
+        }
+        return false;
+    }
+
 }

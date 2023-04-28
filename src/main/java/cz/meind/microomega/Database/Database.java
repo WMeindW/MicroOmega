@@ -282,4 +282,51 @@ public class Database {
         }
         return false;
     }
+
+    public static void editUser(User user) {
+        ArrayList<User> list = deserializeAndRead();
+        for (User u : list) {
+            if (u.getId().equals(user.getId())) {
+                list.remove(u);
+                list.add(user);
+                break;
+            }
+        }
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/files.dat");
+        FileWriter writer;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+        try {
+            writer = new FileWriter(file, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (User user1 : list) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try {
+                ObjectOutputStream stream = new ObjectOutputStream(os);
+                stream.writeObject(user1);
+                stream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                writer.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
