@@ -140,4 +140,16 @@ public class Service {
         return false;
     }
 
+    public static String edit(String id, String username, String password, String bio) {
+        User user = Database.userId(id);
+        if (user != null) {
+            user.setUserName(username);
+            user.setPassword(password);
+            user.setBioProfile(bio);
+            Database.editUser(user);
+            return "success";
+        }
+        return "fail";
+    }
+
 }

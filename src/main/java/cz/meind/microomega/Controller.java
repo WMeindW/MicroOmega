@@ -248,4 +248,17 @@ public class Controller {
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
     }
 
+    @ResponseBody
+    @PostMapping(value = "/edit", produces = "text/html")
+    public ResponseEntity<String> edit(@RequestParam String id, @RequestParam String username, @RequestParam String password, @RequestParam String bio, HttpServletRequest req, HttpServletResponse response) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies() != null) {
+            if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
+                return new ResponseEntity<>(Service.edit(id, username, password, bio), headers, HttpStatus.NO_CONTENT);
+            }
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
 }
