@@ -19,23 +19,25 @@ public class Service {
         for (int i = 0; i < names.length; i++) {
             if (ids[i].equals(ssnId)) user = Database.userName(names[i]);
         }
-        if (user == null)
-            user = Database.userId(ssnId);
+        if (user == null) user = Database.userId(ssnId);
         return user;
     }
 
     public static String sendHook(String data) {
         User user = getUser(data);
+        if (user == null) return null;
         return "id=" + Objects.requireNonNull(user).getId() + "&" + data.split("username=")[1];
     }
 
     public static String info(String data) {
         User user = getUser(data);
+        if (user == null) return null;
         return "id=" + user.getId() + "&" + user.getUserName() + "&" + user.getPassword() + "&" + user.getBioProfile();
     }
 
     public static String friends(String data) {
         User user = getUser(data);
+        if (user == null) return null;
         StringBuilder friends = new StringBuilder();
         for (User friend : user.getFriends()) {
             friends.append(friend.getUserName()).append("&").append("id=").append(friend.getId()).append("&").append(friend.getLastActive().getHour()).append(":").append(friend.getLastActive().getMinute()).append("#");
@@ -68,6 +70,7 @@ public class Service {
 
     public static String add(String data) {
         User user = getUser(data);
+        if (user == null) return null;
         User candidate = getUser(data.split("addId=")[0]);
         if (candidate != null) {
             user.getFriends().add(candidate);
@@ -81,6 +84,7 @@ public class Service {
 
     public static boolean send(String data) {
         User user = getUser(data);
+        if (user == null) return false;
         Hook hook = new Hook(data.split("message=")[1], user);
         String username = data.split("username=")[1].split(",")[0];
         ArrayList<Exchange> list = Database.deserializeAndReadExchange();
@@ -100,6 +104,8 @@ public class Service {
         ArrayList<Exchange> list = Database.deserializeAndReadExchange();
         User sent = getUser(data);
         User received = Database.userName(data.split("username=")[1].split(",")[0]);
+        if (sent == null || received == null)
+            return null;
         Exchange in = null;
         for (Exchange exchange : list) {
             if (exchange.getTwo().equals(sent) && exchange.getOne().equals(sent) || exchange.getTwo().equals(received) && exchange.getOne().equals(received)) {
@@ -120,6 +126,8 @@ public class Service {
 
     public static String user(String data) {
         User user = getUser(data);
+        if (user == null)
+            return null;
         return "id=" + user.getId() + "&" + user.getUserName();
     }
 

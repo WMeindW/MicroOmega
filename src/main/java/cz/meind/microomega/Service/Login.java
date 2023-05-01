@@ -15,7 +15,8 @@ public class Login {
         if (user.getUserName().length() < 5) return null;
         if (user.getPassword().length() < 5) return null;
         for (User value : list)
-            if (value.getPassword().equals(user.getPassword())) return Database.generate(user);
+            if (value.getPassword().equals(user.getPassword()) && user.getUserName().equals(value.getUserName()))
+                return Database.generate(user);
         return null;
     }
 
