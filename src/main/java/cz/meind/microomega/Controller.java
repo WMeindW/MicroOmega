@@ -78,7 +78,7 @@ public class Controller {
             cookie.setMaxAge(-1);
             response.addCookie(cookie);
             response.sendRedirect("/");
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>("<script>localStorage.clear();</script>", HttpStatus.OK);
         }
         response.sendRedirect("/login");
         return new ResponseEntity<>(HttpStatus.OK);
@@ -249,12 +249,12 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/edit", produces = "text/html")
-    public ResponseEntity<String> edit(@RequestParam String id, @RequestBody String body, HttpServletRequest req, HttpServletResponse response) throws IOException {
+    public ResponseEntity<String> edit(@RequestBody String body, HttpServletRequest req) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.edit(id, body), headers, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(Service.edit(body), headers, HttpStatus.NO_CONTENT);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);

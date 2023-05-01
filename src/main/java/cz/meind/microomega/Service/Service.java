@@ -19,6 +19,8 @@ public class Service {
         for (int i = 0; i < names.length; i++) {
             if (ids[i].equals(ssnId)) user = Database.userName(names[i]);
         }
+        if (user == null)
+            user = Database.userId(ssnId);
         return user;
     }
 
@@ -140,9 +142,14 @@ public class Service {
         return false;
     }
 
-    public static String edit(String id, String body) {
-        User user = Database.userId(id);
+    public static String edit(String body) {
+        User user = Database.userId(body.split("id=")[1].split("&")[0].replace("id%3D", ""));
         if (user != null) {
+            user.setUserName(body.split("username=")[1].split("&")[0]);
+            user.setPassword(body.split("password=")[1].split("&")[0]);
+            user.setBioProfile(body.split("bio=")[1].split("&")[0]);
+            Database.editUser(user);
+            return "success";
         }
         return "fail";
     }

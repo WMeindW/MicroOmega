@@ -94,10 +94,21 @@ public class User implements Serializable {
     }
 
     @Override
+    public String toString() {
+        return "User{" +
+                "userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", bioProfile='" + bioProfile + '\'' +
+                ", id='" + id + '\'' +
+                ", lastActive=" + lastActive +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return type == user.type && Objects.equals(userName, user.userName) && Objects.equals(password, user.password);
+        return Objects.equals(getId(), user.getId());
     }
 }

@@ -283,50 +283,61 @@ public class Database {
         return false;
     }
 
-    public static void editUser(User user) {
+    public static boolean editUser(User user) {
         ArrayList<User> list = deserializeAndRead();
-        for (User u : list) {
-            if (u.getId().equals(user.getId())) {
-                list.remove(u);
-                list.add(user);
-                break;
-            }
-        }
-        File file = new File("src/main/java/cz/meind/microomega/Database/Files/files.dat");
-        FileWriter writer;
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-        }
-        try {
-            writer = new FileWriter(file, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         for (User user1 : list) {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            try {
-                ObjectOutputStream stream = new ObjectOutputStream(os);
-                stream.writeObject(user1);
-                stream.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                writer.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (user1.equals(user)) {
+                if (!user1.getUserName().equals(user.getUserName())) {
+                    HashMap<String, String> map = readIds();
+                    String[] names = map.keySet().toArray(new String[0]);
+                    String[] ids = map.values().toArray(new String[0]);
+                    for (String name : names) {
+                        if (name.equals(user1.getUserName())) {
+                            String id = map.get(name);
+                            map.remove(name);
+                            map.put(user.getUserName(), id);
+                            writeIds(map);
+                        }
+                    }
+                }
+                list.remove(user1);
+                list.add(user);
+                File file = new File("src/main/java/cz/meind/microomega/Database/Files/files.dat");
+                FileWriter writer;
+                if (!file.exists()) {
+                    try {
+                        file.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                }
+                try {
+                    writer = new FileWriter(file, StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                StringBuilder content = new StringBuilder();
+                for (User u : list) {
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    try {
+                        ObjectOutputStream stream = new ObjectOutputStream(os);
+                        stream.writeObject(user);
+                        stream.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    content.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
+                }
+                try {
+                    writer.append(content);
+                    writer.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return true;
             }
         }
-        try {
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return false;
     }
 }
