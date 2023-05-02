@@ -71,10 +71,10 @@ public class Service {
     public static String add(String data) {
         User user = getUser(data);
         if (user == null) return null;
-        User candidate = getUser(data.split("addId=")[0]);
-        if (candidate != null) {
-            user.getFriends().add(candidate);
+        User candidate = Database.userId(data.split("addId=id%3D")[1]);
+        if (candidate != null && !candidate.getFriends().contains(user) && !user.getFriends().contains(candidate)) {
             candidate.getFriends().add(user);
+            user.getFriends().add(candidate);
             Database.editUser(user);
             Database.editUser(candidate);
             return "success";
@@ -104,8 +104,7 @@ public class Service {
         ArrayList<Exchange> list = Database.deserializeAndReadExchange();
         User sent = getUser(data);
         User received = Database.userName(data.split("username=")[1].split(",")[0]);
-        if (sent == null || received == null)
-            return null;
+        if (sent == null || received == null) return null;
         Exchange in = null;
         for (Exchange exchange : list) {
             if (exchange.getTwo().equals(sent) && exchange.getOne().equals(sent) || exchange.getTwo().equals(received) && exchange.getOne().equals(received)) {
@@ -126,8 +125,7 @@ public class Service {
 
     public static String user(String data) {
         User user = getUser(data);
-        if (user == null)
-            return null;
+        if (user == null) return null;
         return "id=" + user.getId() + "&" + user.getUserName();
     }
 

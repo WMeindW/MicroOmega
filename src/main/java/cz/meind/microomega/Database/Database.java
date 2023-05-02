@@ -37,20 +37,6 @@ public class Database {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream stream = new ObjectOutputStream(os);
-            stream.writeObject(user);
-            stream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            writer.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         return true;
     }
 
@@ -72,13 +58,7 @@ public class Database {
             throw new RuntimeException(e);
         }
         while (scanner.hasNext()) {
-            InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(scanner.next()));
-            try {
-                ObjectInputStream stream = new ObjectInputStream(in);
-                users.add((User) stream.readObject());
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+
         }
         return users;
     }
@@ -273,8 +253,7 @@ public class Database {
     public static boolean editExchange(Exchange exchange) {
         ArrayList<Exchange> list = deserializeAndReadExchange();
         for (Exchange in : list) {
-            if (in.getOne().getUserName().equals(exchange.getOne().getUserName()) && in.getTwo().getUserName().equals(exchange.getTwo().getUserName())
-                    || in.getTwo().getUserName().equals(exchange.getOne().getUserName()) && in.getOne().getUserName().equals(exchange.getTwo().getUserName())) {
+            if (in.getOne().getUserName().equals(exchange.getOne().getUserName()) && in.getTwo().getUserName().equals(exchange.getTwo().getUserName()) || in.getTwo().getUserName().equals(exchange.getOne().getUserName()) && in.getOne().getUserName().equals(exchange.getTwo().getUserName())) {
                 list.remove(in);
                 list.add(exchange);
                 return serializeAndWriteExchanges(list);
@@ -322,7 +301,7 @@ public class Database {
                     ByteArrayOutputStream os = new ByteArrayOutputStream();
                     try {
                         ObjectOutputStream stream = new ObjectOutputStream(os);
-                        stream.writeObject(user);
+                        stream.writeObject(u);
                         stream.close();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
