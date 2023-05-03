@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
-public class User implements Serializable {
+public class User {
     private Random random = new Random();
     private UType type;
     private String userName;
@@ -35,6 +35,18 @@ public class User implements Serializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public User(UType type, String userName, String password, byte[] profilePicture, String bioProfile, String id, ArrayList<User> friends, LocalTime lastActive) {
+        this.type = type;
+        this.userName = userName;
+        this.password = password;
+        this.profilePicture = profilePicture;
+        this.bioProfile = bioProfile;
+        this.id = id;
+        this.friends = friends;
+        this.lastActive = lastActive;
+        random = new Random();
     }
 
     public LocalTime getLastActive() {

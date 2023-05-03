@@ -1,6 +1,7 @@
 package cz.meind.microomega.Database;/**/
 
 import cz.meind.microomega.User.Exchange;
+import cz.meind.microomega.User.SerializableObject;
 import cz.meind.microomega.User.User;
 
 import java.io.*;
@@ -37,6 +38,16 @@ public class Database {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(out);
+            oos.writeObject(new SerializableObject(user.getLastActive(), user.getFriends(), user.getType(), user.getProfilePicture()));
+            writer.append("username=").append(user.getUserName()).append("&").append("password=").append(user.getPassword()).append("&").append("bio=").append(user.getBioProfile()).append("&").append("id=").append(user.getId()).append("&").append("obj=").append(Base64.getEncoder().encodeToString(out.toByteArray())).append('\n');
+            writer.close();
+            oos.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return true;
     }
 
@@ -53,12 +64,20 @@ public class Database {
         }
         Scanner scanner;
         try {
-            scanner = new Scanner(file);
-        } catch (FileNotFoundException e) {
+            scanner = new Scanner(file, StandardCharsets.UTF_8);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         while (scanner.hasNext()) {
-
+            String line = scanner.next();
+            ByteArrayInputStream bis = new ByteArrayInputStream(Base64.getDecoder().decode(line.split("obj=")[1]));
+            try {
+                ObjectInputStream ois = new ObjectInputStream(bis);
+                SerializableObject obj = (SerializableObject) ois.readObject();
+                users.add(new User(obj.type, line.split("username=")[1].split("&")[0], line.split("password=")[1].split("&")[0], obj.profilePicture, line.split("bio=")[1].split("&")[0], line.split("id=")[1].split("&")[0], obj.list, obj.time));
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
         return users;
     }
@@ -296,20 +315,21 @@ public class Database {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                System.out.println(user.getBioProfile());
                 StringBuilder content = new StringBuilder();
                 for (User u : list) {
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
                     try {
-                        ObjectOutputStream stream = new ObjectOutputStream(os);
-                        stream.writeObject(u);
-                        stream.close();
+                        ObjectOutputStream oos = new ObjectOutputStream(out);
+                        oos.writeObject(new SerializableObject(u.getLastActive(), u.getFriends(), u.getType(), u.getProfilePicture()));
+                        content.append("username=").append(u.getUserName()).append("&").append("password=").append(u.getPassword()).append("&").append("bio=").append(u.getBioProfile()).append("&").append("id=").append(u.getId()).append("&").append("obj=").append(Base64.getEncoder().encodeToString(out.toByteArray())).append('\n');
+                        oos.close();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    content.append(Base64.getEncoder().encodeToString(os.toByteArray())).append('\n');
                 }
                 try {
-                    writer.append(content);
+                    writer.append(content.toString());
                     writer.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
