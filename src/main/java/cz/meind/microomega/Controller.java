@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 @org.springframework.stereotype.Controller
 public class Controller {
@@ -71,7 +73,7 @@ public class Controller {
                 return new ResponseEntity<>(HttpStatus.OK);
             }
         }
-        String login = Login.login(requestBody);
+        String login = Login.login(URLDecoder.decode(requestBody, StandardCharsets.UTF_8));
         if (login != null) {
             Cookie cookie = new Cookie("id", login);
             cookie.setPath("/");
@@ -105,7 +107,7 @@ public class Controller {
                 return new ResponseEntity<>(HttpStatus.OK);
             }
         }
-        if (Register.register(requestBody)) {
+        if (Register.register(URLDecoder.decode(requestBody, StandardCharsets.UTF_8))) {
             response.sendRedirect("/login");
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -119,11 +121,11 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.sendHook(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.sendHook(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
 
-        return new ResponseEntity<>(Service.sendHook(data), headers, HttpStatus.OK);
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
     }
 
     @ResponseBody
@@ -133,7 +135,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.info(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.info(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -146,7 +148,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.friends(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.friends(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -159,7 +161,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.query(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.query(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -172,7 +174,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.add(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.add(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -185,7 +187,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.send(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.send(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -198,7 +200,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.messages(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.messages(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -211,7 +213,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.user(data), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.user(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -225,7 +227,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.profile(id), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.profile(URLDecoder.decode(id, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
@@ -238,7 +240,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                if (Service.logout(id)) {
+                if (Service.logout(URLDecoder.decode(id, StandardCharsets.UTF_8))) {
                     response.sendRedirect("/login");
                     return new ResponseEntity<>(headers, HttpStatus.OK);
                 }
@@ -254,7 +256,7 @@ public class Controller {
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.edit(body), headers, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(Service.edit(URLDecoder.decode(body, StandardCharsets.UTF_8)), headers, HttpStatus.NO_CONTENT);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);

@@ -71,7 +71,7 @@ public class Service {
     public static String add(String data) {
         User user = getUser(data);
         if (user == null) return null;
-        User candidate = Database.userId(data.split("addId=id%3D")[1]);
+        User candidate = Database.userId(data.split("addId=id=")[1]);
         if (candidate != null && !candidate.getFriends().contains(user) && !user.getFriends().contains(candidate)) {
             candidate.getFriends().add(user);
             user.getFriends().add(candidate);
@@ -149,7 +149,7 @@ public class Service {
     }
 
     public static String edit(String body) {
-        User user = Database.userId(body.split("id=")[1].split("&")[0].replace("id%3D", ""));
+        User user = Database.userId(body.replace("id=", "").split("&")[0]);
         if (user != null) {
             user.setUserName(body.split("username=")[1].split("&")[0]);
             user.setPassword(body.split("password=")[1].split("&")[0]);
