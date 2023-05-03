@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
-public class User {
+public class User implements Serializable {
     private Random random = new Random();
     private UType type;
     private String userName;
