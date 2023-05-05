@@ -182,12 +182,12 @@ public class Controller {
 
     @ResponseBody
     @PostMapping(value = "/send", produces = "text/html")
-    public ResponseEntity<Boolean> send(@RequestBody String data, HttpServletRequest req) {
+    public ResponseEntity<String> send(@RequestBody String data, HttpServletRequest req) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.send(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Service.send(URLDecoder.decode(data, StandardCharsets.UTF_8)), headers, HttpStatus.NO_CONTENT);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);

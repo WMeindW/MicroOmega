@@ -1,13 +1,11 @@
 package cz.meind.microomega.Service;
 
 import cz.meind.microomega.Database.Database;
-import cz.meind.microomega.User.Exchange;
 import cz.meind.microomega.User.Hook;
 import cz.meind.microomega.User.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class Service {
     private static User getUser(String data) {
@@ -25,8 +23,10 @@ public class Service {
 
     public static String sendHook(String data) {
         User user = getUser(data);
-        if (user == null) return null;
-        return "id=" + Objects.requireNonNull(user).getId() + "&" + data.split("username=")[1];
+        User user1 = Database.userName(data.split("username=")[1]);
+        if (user == null || user1 == null) return null;
+        if (user.getFriends().contains(user1)) return "id=" + user.getId() + "&" + user1.getUserName();
+        return null;
     }
 
     public static String info(String data) {
@@ -82,45 +82,14 @@ public class Service {
         return "failed";
     }
 
-    public static boolean send(String data) {
+    public static String send(String data) {
         User user = getUser(data);
-        if (user == null) return false;
-        Hook hook = new Hook(data.split("message=")[1], user);
-        String username = data.split("username=")[1].split(",")[0];
-        ArrayList<Exchange> list = Database.deserializeAndReadExchange();
-        for (Exchange exchange : list) {
-            if (exchange.getTwo().equals(user) && exchange.getOne().getUserName().equals(username) || exchange.getTwo().getUserName().equals(username) && exchange.getOne().equals(user)) {
-                exchange.getMessages().add(hook);
-                return Database.editExchange(exchange);
-            }
-        }
-        Exchange exchange = new Exchange(user, Database.userName(username));
-        exchange.getMessages().add(hook);
-        list.add(exchange);
-        return false;
+        User user1 = Database.userName(data.split("username=")[1].split("&")[0]);
+        if (user == null || user1 == null) return "failed";
+        return "success";
     }
 
     public static String messages(String data) {
-        ArrayList<Exchange> list = Database.deserializeAndReadExchange();
-        User sent = getUser(data);
-        User received = Database.userName(data.split("username=")[1].split(",")[0]);
-        if (sent == null || received == null) return null;
-        Exchange in = null;
-        for (Exchange exchange : list) {
-            if (exchange.getTwo().equals(sent) && exchange.getOne().equals(sent) || exchange.getTwo().equals(received) && exchange.getOne().equals(received)) {
-                in = exchange;
-            }
-        }
-        StringBuilder html = new StringBuilder();
-        if (in != null) {
-            for (Hook message : in.getMessages()) {
-                if (message.getSender().equals(sent))
-                    html.append(1).append(message.getText()).append(message.getTime().toString()).append("#");
-                else if (message.getSender().equals(received))
-                    html.append(0).append(message.getText()).append(message.getTime().toString()).append("#");
-            }
-        }
-        return html.toString();
     }
 
     public static String user(String data) {
