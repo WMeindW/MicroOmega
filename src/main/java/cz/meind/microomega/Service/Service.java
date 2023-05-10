@@ -5,7 +5,9 @@ import cz.meind.microomega.User.Hook;
 import cz.meind.microomega.User.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Service {
     private static User getUser(String data) {
@@ -85,11 +87,33 @@ public class Service {
     public static String send(String data) {
         User user = getUser(data);
         User user1 = Database.userName(data.split("username=")[1].split("&")[0]);
+        String text = data.split("text=")[1].split("&")[0];
         if (user == null || user1 == null) return "failed";
+        Hook hook = new Hook(text, user, user1);
+        Database.serializeAndWriteHooks(hook);
         return "success";
     }
 
     public static String messages(String data) {
+        User user = getUser(data);
+        User user1 = Database.userName(data.split("username=")[1].split("&")[0]);
+        HashMap<ArrayList<User>, LinkedList<Hook>> map = Database.deserializeAndReadHooks();
+        ArrayList<User> list = new ArrayList<>();
+        list.add(user);
+        list.add(user1);
+        LinkedList<Hook> hooks = map.get(list);
+        Collections.shuffle(list);
+        if (hooks == null) hooks = map.get(list);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < hooks.size(); i++) {
+            sb.append("#");
+            if (hooks.get(i).getSender().equals(user)) {
+                sb.append("1").append(hooks.get(i).getText()).append("&").append(hooks.get(i).getTime());
+            } else if (hooks.get(i).getSender().equals(user1)) {
+                sb.append("0").append(hooks.get(i).getText()).append("&").append(hooks.get(i).getTime());
+            }
+        }
+        return sb.toString().replaceFirst("#", "");
     }
 
     public static String user(String data) {
