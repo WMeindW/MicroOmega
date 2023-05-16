@@ -4,10 +4,7 @@ import cz.meind.microomega.Database.Database;
 import cz.meind.microomega.User.Hook;
 import cz.meind.microomega.User.User;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 public class Service {
     private static User getUser(String data) {
@@ -87,7 +84,7 @@ public class Service {
     public static String send(String data) {
         User user = getUser(data);
         User user1 = Database.userName(data.split("username=")[1].split("&")[0]);
-        String text = data.split("text=")[1].split("&")[0];
+        String text = data.split("message=")[1].split("&")[0];
         if (user == null || user1 == null) return "failed";
         Hook hook = new Hook(text, user, user1);
         Database.serializeAndWriteHooks(hook);
@@ -97,20 +94,26 @@ public class Service {
     public static String messages(String data) {
         User user = getUser(data);
         User user1 = Database.userName(data.split("username=")[1].split("&")[0]);
+        if (user == null || user1 == null) return null;
         HashMap<ArrayList<User>, LinkedList<Hook>> map = Database.deserializeAndReadHooks();
-        ArrayList<User> list = new ArrayList<>();
-        list.add(user);
-        list.add(user1);
-        LinkedList<Hook> hooks = map.get(list);
-        Collections.shuffle(list);
-        if (hooks == null) hooks = map.get(list);
+        List<ArrayList<User>> users = map.keySet().stream().toList();
+        List<LinkedList<Hook>> hook = map.values().stream().toList();
+        LinkedList<Hook> hooks = null;
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).contains(user) && users.get(i).contains(user1)) {
+                hooks = hook.get(i);
+            } else if (users.get(i).contains(user1) && users.get(i).contains(user)) {
+                hooks = hook.get(i);
+            }
+        }
+        if (hooks == null) return "";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < hooks.size(); i++) {
             sb.append("#");
             if (hooks.get(i).getSender().equals(user)) {
-                sb.append("1").append(hooks.get(i).getText()).append("&").append(hooks.get(i).getTime());
+                sb.append("1").append(hooks.get(i).getText()).append("&").append(hooks.get(i).getTime().getHour()).append(":").append(hooks.get(i).getTime().getMinute());
             } else if (hooks.get(i).getSender().equals(user1)) {
-                sb.append("0").append(hooks.get(i).getText()).append("&").append(hooks.get(i).getTime());
+                sb.append("0").append(hooks.get(i).getText()).append("&").append(hooks.get(i).getTime().getHour()).append(":").append(hooks.get(i).getTime().getMinute());
             }
         }
         return sb.toString().replaceFirst("#", "");

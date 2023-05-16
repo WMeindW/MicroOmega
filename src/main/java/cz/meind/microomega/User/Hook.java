@@ -35,4 +35,14 @@ public class Hook implements Serializable {
     public User getReceiver() {
         return receiver;
     }
+
+    @Override
+    public String toString() {
+        return "Hook{" +
+                "text='" + text + '\'' +
+                ", time=" + time +
+                ", sender=" + sender +
+                ", receiver=" + receiver +
+                '}';
+    }
 }

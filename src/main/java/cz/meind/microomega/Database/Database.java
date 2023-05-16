@@ -232,10 +232,13 @@ public class Database {
     public static boolean serializeAndWriteHooks(Hook hook) {
         File file = new File("src/main/java/cz/meind/microomega/Database/Files/messages.dat");
         FileWriter writer;
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        HashMap<ArrayList<User>, LinkedList<Hook>> map = Database.deserializeAndReadHooks();
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         try {
             writer = new FileWriter(file, StandardCharsets.UTF_8);
@@ -243,16 +246,15 @@ public class Database {
             throw new RuntimeException(e);
         }
         boolean contains = false;
-        HashMap<ArrayList<User>, LinkedList<Hook>> map = Database.deserializeAndReadHooks();
-        ArrayList<User>[] users = (ArrayList<User>[]) map.keySet().toArray();
-        LinkedList<Hook>[] hooks = (LinkedList<Hook>[]) map.values().toArray();
-        for (int i = 0; i < users.length; i++) {
-            if (users[i].contains(hook.getSender()) && users[i].contains(hook.getReceiver())) {
-                hooks[i].add(hook);
+        List<ArrayList<User>> users = map.keySet().stream().toList();
+        List<LinkedList<Hook>> hooks = map.values().stream().toList();
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).contains(hook.getSender()) && users.get(i).contains(hook.getReceiver())) {
+                hooks.get(i).add(hook);
                 map = new HashMap<>();
                 contains = true;
-                for (int j = 0; j < users.length; j++) {
-                    map.put(users[j], hooks[j]);
+                for (int j = 0; j < users.size(); j++) {
+                    map.put(users.get(i), hooks.get(i));
                 }
             }
         }
@@ -264,16 +266,17 @@ public class Database {
             list.add(hook.getReceiver());
             map.put(list, list0);
         }
-        users = (ArrayList<User>[]) map.keySet().toArray();
-        hooks = (LinkedList<Hook>[]) map.values().toArray();
+        users = map.keySet().stream().toList();
+        hooks = map.values().stream().toList();
         for (int i = 0; i < map.size(); i++) {
-            StringBuilder line = new StringBuilder("usr=" + users[i].get(0).getId() + "," + users[i].get(1).getId() + "msg=");
-            for (int j = 0; j < hooks[i].size(); j++) {
+            StringBuilder line = new StringBuilder("usr=" + users.get(i).get(0).getId() + "," + users.get(i).get(1).getId() + "msg=");
+            for (int j = 0; j < hooks.get(i).size(); j++) {
                 ByteArrayOutputStream bout = new ByteArrayOutputStream();
                 try {
                     ObjectOutputStream oos = new ObjectOutputStream(bout);
-                    oos.writeObject(new SerializableMessage(hooks[i].get(j).getText(), hooks[i].get(j).getTime()));
-                    line.append(Base64.getEncoder().encodeToString(bout.toByteArray()));
+                    oos.writeObject(new SerializableMessage(hooks.get(i).get(j).getText(), hooks.get(i).get(j).getTime(), hooks.get(i).get(j).getSender()));
+                    line.append(Base64.getEncoder().encodeToString(bout.toByteArray())).append(",");
+                    oos.close();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -284,7 +287,11 @@ public class Database {
                 throw new RuntimeException(e);
             }
         }
-
+        try {
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return true;
     }
 
@@ -307,24 +314,31 @@ public class Database {
         while (scanner.hasNext()) {
             String line = scanner.next();
             User user1 = Database.userId(line.split("usr=")[1].split(",")[0]);
-            User user2 = Database.userId(line.split("usr=")[1].split(",")[1]);
+            User user2 = Database.userId(line.split("usr=")[1].split(",")[1].split("msg=")[0]);
             String[] messages = line.split("msg=")[1].split(",");
             ArrayList<User> users = new ArrayList<>();
             LinkedList<Hook> hooks = new LinkedList<>();
             users.add(user1);
             users.add(user2);
             for (String message : messages) {
-                try {
-                    ByteArrayInputStream bis = new ByteArrayInputStream(Base64.getDecoder().decode(message));
-                    ObjectInputStream ois = new ObjectInputStream(bis);
-                    SerializableMessage obj = (SerializableMessage) ois.readObject();
-                    hooks.add(new Hook(obj.text, obj.time, user2, user1));
-                } catch (IOException | ClassNotFoundException e) {
-                    throw new RuntimeException(e);
+                if (!Objects.equals(message, "")) {
+                    try {
+                        ByteArrayInputStream bis = new ByteArrayInputStream(Base64.getDecoder().decode(message));
+                        ObjectInputStream ois = new ObjectInputStream(bis);
+                        SerializableMessage obj = (SerializableMessage) ois.readObject();
+                        if (obj.sender.equals(user1)) {
+                            hooks.add(new Hook(obj.text, obj.time, user1, user2));
+                        } else if (obj.sender.equals(user2)) {
+                            hooks.add(new Hook(obj.text, obj.time, user2, user1));
+                        }
+                    } catch (IOException | ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             map.put(users, hooks);
         }
+        scanner.close();
         return map;
     }
 
