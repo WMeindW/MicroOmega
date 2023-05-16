@@ -282,7 +282,7 @@ public class Database {
                 }
             }
             try {
-                writer.append(line);
+                writer.append(line).append("\n");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
