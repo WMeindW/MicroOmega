@@ -21,9 +21,18 @@ public class Login {
     }
 
     public static boolean checkCookie(Cookie[] cookies) {
+        String[] ids = Database.readIds().values().toArray(new String[0]);
+        String[] names = Database.readIds().keySet().toArray(new String[0]);
         for (Cookie cookie : cookies) {
-            for (String id : Database.readIds().values()) {
-                if (cookie.getValue().equals(id)) return true;
+            for (int i = 0; i < names.length; i++) {
+                if (cookie.getValue().equals(ids[i])) {
+                    User user = Database.userId(names[i]);
+                    if (user != null) {
+                        user.setActive();
+                        Database.editUser(user);
+                    }
+                    return true;
+                }
             }
         }
         return false;

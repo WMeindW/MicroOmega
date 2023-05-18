@@ -178,7 +178,6 @@ public class Database {
                 if (!user1.getUserName().equals(user.getUserName())) {
                     HashMap<String, String> map = readIds();
                     String[] names = map.keySet().toArray(new String[0]);
-                    String[] ids = map.values().toArray(new String[0]);
                     for (String name : names) {
                         if (name.equals(user1.getUserName())) {
                             String id = map.get(name);
@@ -282,7 +281,7 @@ public class Database {
                 }
             }
             try {
-                writer.append(line).append("\n");
+                writer.append(URLEncoder.encode(line.toString(), StandardCharsets.UTF_8)).append("\n");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -312,7 +311,7 @@ public class Database {
             throw new RuntimeException(e);
         }
         while (scanner.hasNext()) {
-            String line = scanner.next();
+            String line = URLDecoder.decode(scanner.next(), StandardCharsets.UTF_8);
             User user1 = Database.userId(line.split("usr=")[1].split(",")[0]);
             User user2 = Database.userId(line.split("usr=")[1].split(",")[1].split("msg=")[0]);
             String[] messages = line.split("msg=")[1].split(",");

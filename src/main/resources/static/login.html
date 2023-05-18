@@ -24,10 +24,16 @@
                 <a href="/register" class="text-secondary">Register</a>
             </label>
             <label class="w-100 my-1 text-center">
-                <input type="submit" value="LOGIN" class="btn text-light bg-dark">
+                <input id="button" type="submit" value="LOGIN" class="btn text-light bg-dark">
             </label>
         </div>
     </form>
 </div>
+<script>
+    const button = document.getElementById("button")
+    button.onclick = function () {
+        localStorage.clear();
+    }
+</script>
 </body>
 </html>

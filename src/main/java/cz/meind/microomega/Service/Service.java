@@ -84,11 +84,14 @@ public class Service {
     public static String send(String data) {
         User user = getUser(data);
         User user1 = Database.userName(data.split("username=")[1].split("&")[0]);
-        String text = data.split("message=")[1].split("&")[0];
-        if (user == null || user1 == null) return "failed";
-        Hook hook = new Hook(text, user, user1);
-        Database.serializeAndWriteHooks(hook);
-        return "success";
+        if (data.split("message=").length > 1) {
+            String text = data.split("message=")[1].split("&")[0];
+            if (user == null || user1 == null) return "failed";
+            Hook hook = new Hook(text, user, user1);
+            Database.serializeAndWriteHooks(hook);
+            return "success";
+        }
+        return "failed";
     }
 
     public static String messages(String data) {
