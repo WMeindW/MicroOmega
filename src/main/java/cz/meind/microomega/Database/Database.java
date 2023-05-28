@@ -73,13 +73,18 @@ public class Database {
         }
         while (scanner.hasNext()) {
             String line = scanner.next();
-            ByteArrayInputStream bis = new ByteArrayInputStream(Base64.getDecoder().decode(line.split("obj=")[1]));
+            ByteArrayInputStream bis = null;
+            try {
+                bis = new ByteArrayInputStream(Base64.getDecoder().decode(line.split("obj=")[1]));
+            } catch (Exception e) {
+                return deserializeAndRead();
+            }
             try {
                 ObjectInputStream ois = new ObjectInputStream(bis);
                 SerializableObject obj = (SerializableObject) ois.readObject();
                 users.add(new User(obj.type, URLDecoder.decode(line.split("username=")[1].split("&")[0], StandardCharsets.UTF_8), URLDecoder.decode(line.split("password=")[1].split("&")[0], StandardCharsets.UTF_8), obj.profilePicture, URLDecoder.decode(line.split("bio=")[1].split("&")[0], StandardCharsets.UTF_8), line.split("id=")[1].split("&")[0], obj.list, obj.time));
             } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                return deserializeAndRead();
             }
         }
         return users;
