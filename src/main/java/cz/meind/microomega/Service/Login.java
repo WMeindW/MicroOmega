@@ -24,9 +24,9 @@ public class Login {
         String[] ids = Database.readIds().values().toArray(new String[0]);
         String[] names = Database.readIds().keySet().toArray(new String[0]);
         for (Cookie cookie : cookies) {
-            for (int i = 0; i < names.length; i++) {
+            for (int i = 0; i < ids.length; i++) {
                 if (cookie.getValue().equals(ids[i])) {
-                    User user = Database.userId(names[i]);
+                    User user = Database.userName(names[i]);
                     if (user != null) {
                         user.setActive();
                         Database.editUser(user);

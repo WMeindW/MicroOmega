@@ -9,12 +9,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 @org.springframework.stereotype.Controller
 public class Controller {
@@ -228,6 +231,19 @@ public class Controller {
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
                 return new ResponseEntity<>(Service.profile(URLDecoder.decode(id, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/profile", produces = "text/html")
+    public ResponseEntity<String> editProfile(@RequestBody byte[] body, HttpServletRequest req) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Access-Control-Allow-Origin", "*");
+        if (req.getCookies() != null) {
+            if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
+                return new ResponseEntity<>(Service.editPicture(req.getCookies(), body), headers, HttpStatus.NO_CONTENT);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);

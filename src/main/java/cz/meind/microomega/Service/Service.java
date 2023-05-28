@@ -3,12 +3,17 @@ package cz.meind.microomega.Service;
 import cz.meind.microomega.Database.Database;
 import cz.meind.microomega.User.Hook;
 import cz.meind.microomega.User.User;
+import jakarta.servlet.http.Cookie;
 
 import java.util.*;
 
 public class Service {
     private static User getUser(String data) {
-        String ssnId = data.split("id=")[1].split("&")[0];
+        String ssnId;
+        if (data.split("id=").length > 1)
+            ssnId = data.split("id=")[1].split("&")[0];
+        else
+            ssnId = data;
         HashMap<String, String> map = Database.readIds();
         String[] names = map.keySet().toArray(new String[0]);
         String[] ids = map.values().toArray(new String[0]);
@@ -158,5 +163,24 @@ public class Service {
         }
         return "fail";
     }
+
+    public static String editPicture(Cookie[] cookies, byte[] body) {
+        User user = null;
+        String[] ids = Database.readIds().values().toArray(new String[0]);
+        for (Cookie cookie : cookies) {
+            for (String id : ids) {
+                if (cookie.getValue().equals(id)) {
+                    user = getUser(id);
+                }
+            }
+        }
+        if (user != null) {
+            user.setProfilePicture(body);
+            Database.editUser(user);
+            return "success";
+        }
+        return "fail";
+    }
+
 
 }
