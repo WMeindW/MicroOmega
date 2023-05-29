@@ -10,10 +10,8 @@ import java.util.*;
 public class Service {
     private static User getUser(String data) {
         String ssnId;
-        if (data.split("id=").length > 1)
-            ssnId = data.split("id=")[1].split("&")[0];
-        else
-            ssnId = data;
+        if (data.split("id=").length > 1) ssnId = data.split("id=")[1].split("&")[0];
+        else ssnId = data;
         HashMap<String, String> map = Database.readIds();
         String[] names = map.keySet().toArray(new String[0]);
         String[] ids = map.values().toArray(new String[0]);
@@ -36,7 +34,7 @@ public class Service {
     public static String info(String data) {
         User user = getUser(data);
         if (user == null) return null;
-        return "id=" + user.getId() + "&" + user.getUserName() + "&" + user.getPassword() + "&" + user.getBioProfile();
+        return "id=" + user.getId() + "&" + user.getUserName() + "&" + user.getPassword() + "&" + user.getBioProfile() + "&" + user.getPronouns();
     }
 
     public static String friends(String data) {
@@ -58,7 +56,7 @@ public class Service {
             if (user != null) {
                 for (User candidate : Database.deserializeAndRead()) {
                     if (!user.getFriends().contains(candidate) && !user.equals(candidate)) {
-                        if (candidate.getUserName().toLowerCase().contains(query.toLowerCase()) || candidate.getBioProfile().toLowerCase().contains(query.toLowerCase())) {
+                        if (candidate.getUserName().toLowerCase().contains(query.toLowerCase()) || candidate.getBioProfile().toLowerCase().contains(query.toLowerCase()) || candidate.getPronouns().toLowerCase().contains(query.toLowerCase())) {
                             users.add(candidate);
                         }
                     }
@@ -158,6 +156,7 @@ public class Service {
             user.setUserName(body.split("username=")[1].split("&")[0]);
             user.setPassword(body.split("password=")[1].split("&")[0]);
             user.setBioProfile(body.split("bio=")[1].split("&")[0]);
+            user.setPronouns(body.split("pronouns=")[1].split("&")[0]);
             Database.editUser(user);
             return "success";
         }

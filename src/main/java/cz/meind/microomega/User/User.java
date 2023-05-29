@@ -21,23 +21,25 @@ public class User implements Serializable {
     private String id;
     private final ArrayList<User> friends;
     private LocalTime lastActive;
+    private String pronouns;
 
     public User(UType type, String userName, String password) {
         this.type = type;
         this.userName = userName;
         this.password = password;
-        id = "USRID-" + (random.nextInt(99) + (double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
-        friends = new ArrayList<>();
-        lastActive = LocalTime.now();
-        bioProfile = "...";
+        this.id = "USRID-" + (random.nextInt(99) + (double) random.nextInt(1, 9999) / random.nextInt(1, 9999));
+        this.friends = new ArrayList<>();
+        this.lastActive = LocalTime.now();
+        this.bioProfile = "...";
+        this.pronouns = "/";
         try {
-            profilePicture = Files.readAllBytes(new File("src/main/resources/static/profile.png").toPath());
+            this.profilePicture = Files.readAllBytes(new File("src/main/resources/static/profile.png").toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public User(UType type, String userName, String password, byte[] profilePicture, String bioProfile, String id, ArrayList<User> friends, LocalTime lastActive) {
+    public User(UType type, String userName, String password, byte[] profilePicture, String bioProfile, String id, ArrayList<User> friends, LocalTime lastActive, String pronouns) {
         this.type = type;
         this.userName = userName;
         this.password = password;
@@ -46,7 +48,16 @@ public class User implements Serializable {
         this.id = id;
         this.friends = friends;
         this.lastActive = lastActive;
+        this.pronouns = pronouns;
         random = new Random();
+    }
+
+    public String getPronouns() {
+        return pronouns;
+    }
+
+    public void setPronouns(String pronouns) {
+        this.pronouns = pronouns;
     }
 
     public LocalTime getLastActive() {
@@ -107,13 +118,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
-                "userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
-                ", bioProfile='" + bioProfile + '\'' +
-                ", id='" + id + '\'' +
-                ", lastActive=" + lastActive +
-                '}';
+        return "User{" + "userName='" + userName + '\'' + ", password='" + password + '\'' + ", bioProfile='" + bioProfile + '\'' + ", id='" + id + '\'' + ", lastActive=" + lastActive + '}';
     }
 
     @Override
