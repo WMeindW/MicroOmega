@@ -45,12 +45,7 @@ public class Database {
         try {
             ObjectOutputStream oos = new ObjectOutputStream(out);
             oos.writeObject(new SerializableObject(user.getLastActive(), user.getFriends(), user.getType(), user.getProfilePicture()));
-            writer.append("username=").append(URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8)).append("&")
-                    .append("password=").append(URLEncoder.encode(user.getPassword(), StandardCharsets.UTF_8)).append("&")
-                    .append("pronouns=").append(URLEncoder.encode(user.getPronouns(), StandardCharsets.UTF_8)).append("&")
-                    .append("bio=").append(URLEncoder.encode(user.getBioProfile(), StandardCharsets.UTF_8)).append("&")
-                    .append("id=").append(user.getId()).append("&")
-                    .append("obj=").append(Base64.getEncoder().encodeToString(out.toByteArray())).append('\n');
+            writer.append("username=").append(URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8)).append("&").append("password=").append(URLEncoder.encode(user.getPassword(), StandardCharsets.UTF_8)).append("&").append("pronouns=").append(URLEncoder.encode(user.getPronouns(), StandardCharsets.UTF_8)).append("&").append("bio=").append(URLEncoder.encode(user.getBioProfile(), StandardCharsets.UTF_8)).append("&").append("id=").append(user.getId()).append("&").append("obj=").append(Base64.getEncoder().encodeToString(out.toByteArray())).append('\n');
             writer.close();
             oos.close();
         } catch (IOException e) {
@@ -87,7 +82,7 @@ public class Database {
             try {
                 ObjectInputStream ois = new ObjectInputStream(bis);
                 SerializableObject obj = (SerializableObject) ois.readObject();
-                users.add(new User(obj.type, URLDecoder.decode(line.split("username=")[1].split("&")[0], StandardCharsets.UTF_8), URLDecoder.decode(line.split("password=")[1].split("&")[0], StandardCharsets.UTF_8), obj.profilePicture, URLDecoder.decode(line.split("bio=")[1].split("&")[0], StandardCharsets.UTF_8), line.split("id=")[1].split("&")[0], obj.list, obj.time, URLDecoder.decode(line.split("pronouns=")[1].split("&")[0],StandardCharsets.UTF_8)));
+                users.add(new User(obj.type, URLDecoder.decode(line.split("username=")[1].split("&")[0], StandardCharsets.UTF_8), URLDecoder.decode(line.split("password=")[1].split("&")[0], StandardCharsets.UTF_8), obj.profilePicture, URLDecoder.decode(line.split("bio=")[1].split("&")[0], StandardCharsets.UTF_8), line.split("id=")[1].split("&")[0], obj.list, obj.time, URLDecoder.decode(line.split("pronouns=")[1].split("&")[0], StandardCharsets.UTF_8)));
             } catch (IOException | ClassNotFoundException e) {
                 return deserializeAndRead();
             }
@@ -183,64 +178,43 @@ public class Database {
 
     public static boolean editUser(User user) {
         ArrayList<User> list = deserializeAndRead();
-        for (User user1 : list) {
-            if (user1.equals(user)) {
-                if (!user1.getUserName().equals(user.getUserName())) {
-                    HashMap<String, String> map = readIds();
-                    String[] names = map.keySet().toArray(new String[0]);
-                    for (String name : names) {
-                        if (name.equals(user1.getUserName())) {
-                            String id = map.get(name);
-                            map.remove(name);
-                            map.put(user.getUserName(), id);
-                            writeIds(map);
-                        }
-                    }
-                }
-                list.remove(user1);
-                list.add(user);
-                File file = new File("src/main/java/cz/meind/microomega/Database/Files/files.dat");
-                FileWriter writer;
-                if (!file.exists()) {
-                    try {
-                        file.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                }
-                try {
-                    writer = new FileWriter(file, StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                StringBuilder content = new StringBuilder();
-                for (User u : list) {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    try {
-                        ObjectOutputStream oos = new ObjectOutputStream(out);
-                        oos.writeObject(new SerializableObject(u.getLastActive(), u.getFriends(), u.getType(), u.getProfilePicture()));
-                        content.append("username=").append(URLEncoder.encode(user.getUserName(), StandardCharsets.UTF_8)).append("&")
-                                .append("password=").append(URLEncoder.encode(user.getPassword(), StandardCharsets.UTF_8)).append("&")
-                                .append("pronouns=").append(URLEncoder.encode(user.getPronouns(), StandardCharsets.UTF_8)).append("&")
-                                .append("bio=").append(URLEncoder.encode(user.getBioProfile(), StandardCharsets.UTF_8)).append("&")
-                                .append("id=").append(user.getId()).append("&")
-                                .append("obj=").append(Base64.getEncoder().encodeToString(out.toByteArray())).append('\n');
-                        oos.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                try {
-                    writer.append(content.toString());
-                    writer.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                return true;
+        if (user == null) return false;
+        File file = new File("src/main/java/cz/meind/microomega/Database/Files/files.dat");
+        FileWriter writer;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
             }
         }
-        return false;
+        try {
+            writer = new FileWriter(file, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId().equals(user.getId()) || list.get(i).getUserName().equals(user.getUserName())) {
+                list.set(i, user);
+            }
+        }
+        for (User entry : list) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                ObjectOutputStream oos = new ObjectOutputStream(out);
+                oos.writeObject(new SerializableObject(entry.getLastActive(), entry.getFriends(), entry.getType(), entry.getProfilePicture()));
+                writer.append("username=").append(URLEncoder.encode(entry.getUserName(), StandardCharsets.UTF_8)).append("&").append("password=").append(URLEncoder.encode(entry.getPassword(), StandardCharsets.UTF_8)).append("&").append("pronouns=").append(URLEncoder.encode(entry.getPronouns(), StandardCharsets.UTF_8)).append("&").append("bio=").append(URLEncoder.encode(entry.getBioProfile(), StandardCharsets.UTF_8)).append("&").append("id=").append(entry.getId()).append("&").append("obj=").append(Base64.getEncoder().encodeToString(out.toByteArray())).append('\n');
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
     }
 
     public static boolean serializeAndWriteHooks(Hook hook) {
