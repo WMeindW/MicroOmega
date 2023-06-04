@@ -133,6 +133,9 @@ public class Service {
 
     public static byte[] profile(String data) {
         User user = Database.userId(data);
+        if (user == null) {
+            user = getUser(data);
+        }
         if (user != null) {
             return user.getProfilePicture();
         }

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Base64;
 
 @org.springframework.stereotype.Controller
 public class Controller {
@@ -224,13 +225,13 @@ public class Controller {
 
     @ResponseBody
     @GetMapping(value = "/profile", produces = "text/html")
-    public ResponseEntity<byte[]> profile(@RequestParam String id, HttpServletRequest req) {
+    public ResponseEntity<String> profile(@RequestParam String id, HttpServletRequest req) {
         HttpHeaders headers = new HttpHeaders();
 
         headers.add("Access-Control-Allow-Origin", "*");
         if (req.getCookies() != null) {
             if (req.getCookies().length != 0 && Login.checkCookie(req.getCookies())) {
-                return new ResponseEntity<>(Service.profile(URLDecoder.decode(id, StandardCharsets.UTF_8)), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Base64.getEncoder().encodeToString(Service.profile(URLDecoder.decode(id, StandardCharsets.UTF_8))), headers, HttpStatus.OK);
             }
         }
         return new ResponseEntity<>(headers, HttpStatus.BAD_REQUEST);
