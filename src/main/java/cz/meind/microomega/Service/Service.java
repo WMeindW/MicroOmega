@@ -42,7 +42,7 @@ public class Service {
         if (user == null) return null;
         StringBuilder friends = new StringBuilder();
         for (User friend : user.getFriends()) {
-            friends.append(friend.getUserName()).append("&").append("id=").append(friend.getId()).append("&").append(friend.getLastActive().getHour()).append(":").append(friend.getLastActive().getMinute()).append("#");
+            friends.append(friend.getUserName()).append("&").append("id=").append(friend.getId()).append("&").append(friend.getLastActive().getHour()).append(":").append(friend.getLastActive().getMinute()).append("&").append(Base64.getEncoder().encodeToString(friend.getProfilePicture())).append("#");
         }
         return friends.toString();
     }
@@ -62,7 +62,7 @@ public class Service {
                     }
                 }
                 for (User match : users) {
-                    html.append("id=").append(match.getId()).append("&").append(match.getUserName()).append("#");
+                    html.append("id=").append(match.getId()).append("&").append(match.getUserName()).append("&").append(Base64.getEncoder().encodeToString(match.getProfilePicture())).append("#");
                 }
                 return html.toString();
             }

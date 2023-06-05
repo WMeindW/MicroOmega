@@ -10,7 +10,7 @@
 <body class="bg-dark">
 <div class="card mx-auto my-2 border border-dark"
      style="max-height: 40%; max-width: 20%;background-color: #1a1b1f">
-    <form class="mx-auto my-1" action="/login" method="post">
+    <form onsubmit={localStorage.clear()} class="mx-auto my-1" action="/login" method="post">
         <div class="card-body">
             <label class="w-100 my-2">
                 <input name="username" class="bg-dark border border-dark rounded text-light h-100 w-100"
@@ -24,15 +24,10 @@
                 <a href="/register" class="text-secondary">Register</a>
             </label>
             <label class="w-100 my-1 text-center">
-                <input onclick="onclick()" type="submit" value="LOGIN" class="btn text-light bg-dark">
+                <input type="submit" value="LOGIN" class="btn text-light bg-dark">
             </label>
         </div>
     </form>
 </div>
-<script>
-    function onclick() {
-        localStorage.clear();
-    }
-</script>
 </body>
 </html>

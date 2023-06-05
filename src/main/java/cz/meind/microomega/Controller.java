@@ -84,10 +84,9 @@ public class Controller {
             cookie.setMaxAge(-1);
             response.addCookie(cookie);
             response.sendRedirect("/");
-            return new ResponseEntity<>("<script>localStorage.clear();</script>", HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        response.sendRedirect("/login");
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(Database.read("login.html") + "<script>alert(\"Error!\")</script>", HttpStatus.OK);
     }
 
     @ResponseBody
@@ -115,7 +114,7 @@ public class Controller {
             response.sendRedirect("/login");
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>("<script>alert(\"Error!\")</script>", HttpStatus.OK);
+        return new ResponseEntity<>(Database.read("register.html") + "<script>alert(\"Error!\")</script>", HttpStatus.OK);
     }
 
     @ResponseBody
